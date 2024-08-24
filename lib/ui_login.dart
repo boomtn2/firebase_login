@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:test_4_login/error.dart';
+import 'package:test_4_login/ui_data.dart';
 import 'package:test_4_login/utils/utils.dart';
 
 import 'sign.dart';
@@ -251,8 +252,13 @@ class SocialLoginButtons extends StatelessWidget {
 
   const SocialLoginButtons({super.key, required this.onError});
 
-  void _loginGoogle() async {
+  void _loginGoogle(BuildContext context) async {
     final data = await signInWithGoogle();
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => HomePage(),
+        ));
     if (data == null) {
       onError('Lỗi đăng nhập Google');
     }
@@ -292,7 +298,8 @@ class SocialLoginButtons extends StatelessWidget {
           children: [
             _buttonIcon(Icons.facebook, _loginFaceBook, Colors.blue),
             _buttonIcon(Icons.apple, _loginApple, Colors.black),
-            _buttonIcon(Icons.g_mobiledata_rounded, _loginGoogle, Colors.green),
+            _buttonIcon(Icons.g_mobiledata_rounded, () => _loginGoogle(context),
+                Colors.green),
           ],
         ),
       ],
@@ -301,7 +308,7 @@ class SocialLoginButtons extends StatelessWidget {
 
   Widget _buttonIcon(IconData iconData, Function fct, Color color) {
     return InkWell(
-      onTap: () => fct,
+      onTap: () => fct(),
       child: Container(
         height: 50,
         width: 50,
