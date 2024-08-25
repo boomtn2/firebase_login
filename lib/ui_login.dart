@@ -26,14 +26,7 @@ class _LoginPageState extends State<LoginPage> {
     return Scaffold(
       body: Stack(
         children: [
-          SizedBox(
-            height: MediaQuery.sizeOf(context).height,
-            width: MediaQuery.sizeOf(context).width,
-            child: Image.asset(
-              'assets/images/bgr_login.png',
-              fit: BoxFit.fill,
-            ),
-          ),
+          _bgr(),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Column(
@@ -57,7 +50,7 @@ class _LoginPageState extends State<LoginPage> {
                 const SizedBox(height: 20),
                 ErrorMessage(error: error),
                 const SizedBox(height: 20),
-                ActionButtons(
+                LoginButtons(
                   cAccount: cAccount,
                   cPass: cPass,
                   onError: (String errorMsg) {
@@ -67,7 +60,10 @@ class _LoginPageState extends State<LoginPage> {
                   },
                 ),
                 const SizedBox(height: 10),
-                ActionTextButtons(
+                RegisterAndForgotPasswordWidget(
+                  create: () {
+                    createUser(cAccount.text, cPass.text);
+                  },
                   onError: (String errorMsg) {
                     setState(() {
                       error = errorMsg;
@@ -87,19 +83,33 @@ class _LoginPageState extends State<LoginPage> {
       ),
     );
   }
+
+  Widget _bgr() {
+    return SizedBox(
+      height: MediaQuery.sizeOf(context).height,
+      width: MediaQuery.sizeOf(context).width,
+      child: Image.asset(
+        'assets/images/bgr_login.png',
+        fit: BoxFit.fill,
+      ),
+    );
+  }
 }
 
-class ActionTextButtons extends StatelessWidget {
-  const ActionTextButtons({super.key, required this.onError});
+class RegisterAndForgotPasswordWidget extends StatelessWidget {
+  const RegisterAndForgotPasswordWidget(
+      {super.key, required this.onError, required this.create});
   final Function(String) onError;
-
+  final Function create;
   @override
   Widget build(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         InkWell(
-          onTap: () async {},
+          onTap: () async {
+            create();
+          },
           child: const Padding(
             padding: EdgeInsets.all(8.0),
             child: Text(
@@ -202,12 +212,12 @@ class _LoginTextFieldState extends State<LoginTextField> {
   }
 }
 
-class ActionButtons extends StatelessWidget {
+class LoginButtons extends StatelessWidget {
   final TextEditingController cAccount;
   final TextEditingController cPass;
   final Function(String) onError;
 
-  const ActionButtons({
+  const LoginButtons({
     super.key,
     required this.cAccount,
     required this.cPass,
@@ -228,8 +238,13 @@ class ActionButtons extends StatelessWidget {
               try {
                 final user =
                     await signInWithEmailAndPass(cAccount.text, cPass.text);
-                Utils.showToast(
-                    context, 'Đăng nhập thành công ${user?.user?.email}');
+                Utils.showToast(context,
+                    'Đăng nhập thành công ${user?.user?.email} ${user?.user?.uid}');
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => HomePage(),
+                    ));
               } catch (e) {
                 if (e is ErorrBase) {
                   onError('${e.message} : ${e.code}');
